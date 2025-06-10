@@ -1,0 +1,207 @@
+import React from "react";
+import { useEffect, useState } from "react";
+import {
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Modal,
+  Select,
+  TextField,
+} from "@mui/material";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+
+import { createClient } from "@supabase/supabase-js";
+const supabase = createClient(
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY
+);
+
+export default function LogJumpModal() {
+  const [open, setOpen] = React.useState(false);
+  const [jumpNumber, setJumpNumber] = useState([]);
+  const [dropzones, setDropzones] = useState([]);
+  const [teams, setTeams] = useState([]);
+  const [jumptype, setJumpType] = useState([]);
+  const [logJump, setLogJump] = useState([]);
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleOpen = () => {
+    setOpen(true);
+    getJumpNumber();
+    getDropzones();
+    getTeams();
+    getJumpType();
+  };
+
+  async function getJumpNumber() {
+    const { data } = await supabase
+      .from("logbook")
+      .select("jump")
+      .order("jump", { ascending: false })
+      .limit(1);
+    setJumpNumber(data[0].jump + 1);
+  }
+
+  async function getDropzones() {
+    const { data } = await supabase.from("location").select("id, dropzone");
+    setDropzones(data);
+  }
+
+  async function getTeams() {
+    const { data } = await supabase.from("team").select("id, name");
+    setTeams(data);
+  }
+
+  async function getJumpType() {
+    const { data } = await supabase.from("jumptype").select("id, jump_type");
+    setJumpType(data);
+  }
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setLogJump((prevFormData) => ({ ...prevFormData, [name]: value }));
+  };
+
+  const handleSave = () => {
+    onSave(jumpNumber, logJump);
+  };
+
+  async function onSave(jumpNumber, logJump) {
+    // yes we need the date. but.... if it doesn't exist, make it today.
+    const { error } = await supabase
+      .from("logbook")
+      .insert({
+        jump: jumpNumber,
+        jump_date: new Date(),
+        location: logJump.dropzone,
+        team: logJump.team,
+      });
+  }
+
+  return (
+    <div
+      style={{
+        textAlign: "center",
+        display: "block",
+        margin: "auto",
+      }}
+    >
+      <button type="button" onClick={handleOpen}>
+        Log Jump
+      </button>
+      <Modal
+        onClose={handleClose}
+        open={open}
+        BackdropProps={{ style: { backgroundColor: "white" } }}
+        style={{
+          // position: "absolute",
+          height: "75%",
+          width: "50%",
+          padding: "2%",
+          margin: "auto",
+          // top: 10,
+          backgroundColor: "white", // Change to whatever color you want
+          border: "2px solid #000",
+          opacity: 1,
+        }}
+      >
+        <>
+          <h2>Jump #{jumpNumber}</h2>
+          <LocalizationProvider dateAdapter={AdapterDayjs} fullWidth>
+            <DatePicker required />
+          </LocalizationProvider>
+          <FormControl fullWidth style={{ marginTop: "1rem" }}>
+            <InputLabel id="demo-simple-select-label">Dropzone *</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              label="Dropzone"
+              required
+              style={{ marginBottom: "1rem" }}
+              onChange={handleChange}
+              value={logJump.dropzone || ""}
+              name="dropzone"
+            >
+              {dropzones.map((option) => (
+                <MenuItem key={option.id} value={option.id}>
+                  {option.dropzone}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl fullWidth>
+            <InputLabel id="demo-simple-select-label">Team</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              label="Team"
+              style={{ marginBottom: "1rem" }}
+              onChange={handleChange}
+              value={logJump.team || ""}
+              name="team"
+            >
+              {teams.map((option) => (
+                <MenuItem key={option.id} value={option.id}>
+                  {option.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl fullWidth>
+            <InputLabel id="demo-simple-select-label">Jump Type</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              label="Team"
+              style={{ marginBottom: "1rem" }}
+              // onChange={handleChange}
+            >
+              {jumptype.map((option) => (
+                <MenuItem key={option.id} value={option.id}>
+                  {option.jump_type}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          {/* <TextField
+                        label="Altitude"
+                        // value={inputValue}
+                        // onChange={handleInputChange}
+                        fullWidth
+                        style={{ marginBottom: "1rem" }}
+                    />
+                    <TextField
+                        label="Delay"
+                        // value={inputValue}
+                        // onChange={handleInputChange}
+                        fullWidth
+                        style={{ marginBottom: "1rem" }}
+                    /> */}
+          {/* <TextField
+                        label="Formation Size"
+                        value={inputValue}
+                        // onChange={handleInputChange}
+                        fullWidth
+                        style={{ marginBottom: "1rem" }}
+                    />
+                    <TextField
+                        label="Remarks"
+                        value={inputValue}
+                        // onChange={handleInputChange}
+                        fullWidth
+                        style={{ marginBottom: "1rem" }}
+                    /> */}
+          <Button onClick={handleSave} sx={{ mt: 2 }}>
+            Save
+          </Button>
+        </>
+      </Modal>
+    </div>
+  );
+}

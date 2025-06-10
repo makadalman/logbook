@@ -1,0 +1,9 @@
+.DailyDive {
+  text-align: center;
+}
+
+.small-cat {
+  height: 5vmin;
+  pointer-events: none;
+}
+
