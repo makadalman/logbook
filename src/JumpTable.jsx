@@ -58,22 +58,6 @@ export default function JumpTable() {
     setJumps(data);
   }
 
-  //   {
-  //     "jump": 1508,
-  //     "jump_date": "2025-05-25",
-  //     "jump_type": "RW",
-  //     "dropzone": "Skydive Paraclete XP",
-  //     "team": null,
-  //     "aircraft": "Twin Otter",
-  //     "altitude": 13500,
-  //     "delay": 71,
-  //     "formation": 14,
-  //     "container": "Cat Javelin",
-  //     "canopy": "Sabre2",
-  //     "canopy_color": "Orange",
-  //     "canopy_size": "120"
-  // }
-
   return (
     <TableContainer position="fixed" component={Paper} sx={{ maxHeight: 530 }}>
       <Table stickyHeader size="small" aria-label="simple table">
@@ -116,9 +100,7 @@ function Row(props) {
         <TableCell component="th" scope="row">
           {row.jump}
         </TableCell>
-        <TableCell align="right">
-          {new Date(row.jump_date).toLocaleDateString()}
-        </TableCell>
+        <TableCell align="right">{formatDate(row.jump_date)}</TableCell>
         <TableCell align="right">{row.dropzone}</TableCell>
         <TableCell align="right">
           {row.jump_type ? row.jump_type : ""}
@@ -193,4 +175,10 @@ function FormatCanopyColor(data) {
       <span>{data.canopy_size ? `(${data.canopy_size})` : ""}</span>
     </div>
   );
+}
+
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  date.setDate(date.getDate() + 1);
+  return date.toLocaleDateString();
 }
