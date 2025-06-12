@@ -1,12 +1,20 @@
-# React + Vite
+# Skydiving Adventures (for now, just for me)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+I like to jump out of planes with my friends, sometimes, just a few friends, sometimes a _lot_ of friends.
+Keeping track of statistics is kinda fun.
+* distance fallen
+* total freefall time
+* formation sizes
+* number of jumps
+  * by location
+  * by team
+  * by month
+  * by year
+  * by aircraft
+* gear
+  * containers
+  * canopies
+  * line sets
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Data visualization has always made me weirdly happy. And in the meantime, I'm learning how to utilize MUI with React, on top of a Supabase database.
+More ideas for graphs and charts to come, along with a training tool (the daily dive) that I have been working on in a separate project.
