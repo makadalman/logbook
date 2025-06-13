@@ -1,8 +1,6 @@
-import { useEffect, useState } from "react";
 import {
   AppBar,
   Box,
-  Container,
   Grid,
   IconButton,
   Toolbar,
@@ -14,6 +12,7 @@ import theme from "./theme";
 import "./App.css";
 
 import JumpTable from "./JumpTable.jsx";
+import JumpByMonthBarGraph from "./JumpByMonthBarGraph.jsx";
 import JumpsByPieGraphs from "./JumpsByPieGraphs.jsx";
 import SummaryTable from "./SummaryTable.jsx";
 import LogJumpModal from "./LogJumpModal.jsx";
@@ -41,6 +40,7 @@ function App() {
           <JumpTable />
         </Grid>
         <JumpsByPieGraphs />
+        <JumpByMonthBarGraph />
       </Grid>
     </>
   );

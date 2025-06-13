@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { PieChart, pieArcLabelClasses } from "@mui/x-charts/PieChart";
 import { Grid } from "@mui/material";
-import { blueberryTwilightPalette } from "@mui/x-charts/colorPalettes";
+import {
+  blueberryTwilightPalette,
+  strawberrySkyPalette,
+} from "@mui/x-charts/colorPalettes";
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
   import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -11,10 +14,12 @@ const supabase = createClient(
 export default function JumpsByPieGraphs() {
   const [jumpsByLocation, setJumpsByLocation] = useState([]);
   const [jumpsByTeam, setJumpsByTeam] = useState([]);
+  const [jumpsByType, setJumpsByType] = useState([]);
 
   useEffect(() => {
     getJumpsByLocation();
     getJumpsByTeam();
+    getJumpsByType();
   }, []);
 
   async function getJumpsByLocation() {
@@ -28,6 +33,11 @@ export default function JumpsByPieGraphs() {
       value: item.value,
     }));
     setJumpsByTeam(formattedTeams);
+  }
+
+  async function getJumpsByType() {
+    const { data } = await supabase.rpc("get_jumps_by_type", {});
+    setJumpsByType(data);
   }
 
   return (
@@ -58,6 +68,7 @@ export default function JumpsByPieGraphs() {
                 overflowY: "scroll",
                 flexWrap: "nowrap",
                 height: "300px",
+                width: "25%",
               },
             },
           }}
@@ -88,6 +99,39 @@ export default function JumpsByPieGraphs() {
                 // overflowY: "scroll",
                 flexWrap: "nowrap",
                 height: "100%",
+                width: "25%",
+              },
+            },
+          }}
+        />
+      </Grid>
+      <Grid sx={{ padding: 2 }} size={{ sm: 12, md: 6 }}>
+        <h2 style={{ display: "flex", justifyContent: "center" }}>
+          Jumps by Type
+        </h2>
+        <PieChart
+          loading={jumpsByType.length === 0}
+          height={400}
+          colors={strawberrySkyPalette}
+          series={[
+            {
+              arcLabelMinAngle: 35,
+              arcLabelRadius: "60%",
+              data: jumpsByType,
+            },
+          ]}
+          sx={{
+            [`& .${pieArcLabelClasses.root}`]: {
+              fontWeight: "bold",
+            },
+          }}
+          slotProps={{
+            legend: {
+              sx: {
+                overflowY: "scroll",
+                flexWrap: "nowrap",
+                height: "100%",
+                width: "25%",
               },
             },
           }}

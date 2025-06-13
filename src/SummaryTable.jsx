@@ -1,8 +1,6 @@
-import * as React from "react";
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
-import theme from "./theme";
-import { Box, Container, getContainerUtilityClass, Grid } from "@mui/material";
+import { Box, Container, Grid } from "@mui/material";
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
