@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
+import supabase from "./CreateSupa.jsx"; // Adjust the import based on your project structure
 import { PieChart, pieArcLabelClasses } from "@mui/x-charts/PieChart";
 import { Grid } from "@mui/material";
 import {
@@ -8,10 +8,6 @@ import {
   cheerfulFiestaPalette,
   mangoFusionPalette,
 } from "@mui/x-charts/colorPalettes";
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
 
 export default function JumpsByPieGraphs() {
   const [jumpsByLocation, setJumpsByLocation] = useState([]);
@@ -89,6 +85,7 @@ export default function JumpsByPieGraphs() {
         </h2>
         <PieChart
           loading={jumpsByTeam.length === 0}
+          colors={strawberrySkyPalette}
           height={400}
           series={[
             {

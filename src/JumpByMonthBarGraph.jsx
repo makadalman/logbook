@@ -1,16 +1,11 @@
 import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
 import { Button, Grid, Modal, Box, Typography } from "@mui/material";
 import { BarChart } from "@mui/x-charts/BarChart";
 import {
   mangoFusionPalette,
   cheerfulFiestaPalette,
 } from "@mui/x-charts/colorPalettes";
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
+import supabase from "./CreateSupa.jsx"; // Adjust the import based on your project structure
 
 const MONTH_NAMES = [
   "",

@@ -17,12 +17,6 @@ import JumpsByPieGraphs from "./JumpsByPieGraphs.jsx";
 import SummaryTable from "./SummaryTable.jsx";
 import LogJumpModal from "./LogJumpModal.jsx";
 
-import { createClient } from "@supabase/supabase-js";
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
-
 function App() {
   return (
     <>
@@ -64,7 +58,7 @@ function Adventurebar() {
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               Log book adventures
             </Typography>
-            {/* <LogJumpModal /> */}
+            <LogJumpModal />
           </Toolbar>
         </AppBar>
       </Box>

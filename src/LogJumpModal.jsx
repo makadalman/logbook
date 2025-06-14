@@ -2,6 +2,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 import {
   Button,
+  Box,
   FormControl,
   InputLabel,
   MenuItem,
@@ -13,11 +14,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
-import { createClient } from "@supabase/supabase-js";
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
+import supabase from "./CreateSupa.jsx";
 
 export default function LogJumpModal() {
   const [open, setOpen] = React.useState(false);
@@ -74,14 +71,12 @@ export default function LogJumpModal() {
 
   async function onSave(jumpNumber, logJump) {
     // yes we need the date. but.... if it doesn't exist, make it today.
-    const { error } = await supabase
-      .from("logbook")
-      .insert({
-        jump: jumpNumber,
-        jump_date: new Date(),
-        location: logJump.dropzone,
-        team: logJump.team,
-      });
+    const { error } = await supabase.from("logbook").insert({
+      jump: jumpNumber,
+      jump_date: new Date(),
+      location: logJump.dropzone,
+      team: logJump.team,
+    });
   }
 
   return (
@@ -95,23 +90,17 @@ export default function LogJumpModal() {
       <button type="button" onClick={handleOpen}>
         Log Jump
       </button>
-      <Modal
-        onClose={handleClose}
-        open={open}
-        BackdropProps={{ style: { backgroundColor: "white" } }}
-        style={{
-          // position: "absolute",
-          height: "75%",
-          width: "50%",
-          padding: "2%",
-          margin: "auto",
-          // top: 10,
-          backgroundColor: "white", // Change to whatever color you want
-          border: "2px solid #000",
-          opacity: 1,
-        }}
-      >
-        <>
+      <Modal onClose={handleClose} open={open}>
+        <Box
+          sx={{
+            bgcolor: "white",
+            p: 3,
+            m: "auto",
+            mt: 10,
+            maxWidth: "80%",
+            borderRadius: 2,
+          }}
+        >
           <h2>Jump #{jumpNumber}</h2>
           <LocalizationProvider dateAdapter={AdapterDayjs} fullWidth>
             <DatePicker required />
@@ -169,38 +158,10 @@ export default function LogJumpModal() {
               ))}
             </Select>
           </FormControl>
-          {/* <TextField
-                        label="Altitude"
-                        // value={inputValue}
-                        // onChange={handleInputChange}
-                        fullWidth
-                        style={{ marginBottom: "1rem" }}
-                    />
-                    <TextField
-                        label="Delay"
-                        // value={inputValue}
-                        // onChange={handleInputChange}
-                        fullWidth
-                        style={{ marginBottom: "1rem" }}
-                    /> */}
-          {/* <TextField
-                        label="Formation Size"
-                        value={inputValue}
-                        // onChange={handleInputChange}
-                        fullWidth
-                        style={{ marginBottom: "1rem" }}
-                    />
-                    <TextField
-                        label="Remarks"
-                        value={inputValue}
-                        // onChange={handleInputChange}
-                        fullWidth
-                        style={{ marginBottom: "1rem" }}
-                    /> */}
           <Button onClick={handleSave} sx={{ mt: 2 }}>
             Save
           </Button>
-        </>
+        </Box>
       </Modal>
     </div>
   );
