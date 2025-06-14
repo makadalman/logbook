@@ -5,6 +5,8 @@ import { Grid } from "@mui/material";
 import {
   blueberryTwilightPalette,
   strawberrySkyPalette,
+  cheerfulFiestaPalette,
+  mangoFusionPalette,
 } from "@mui/x-charts/colorPalettes";
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -15,11 +17,13 @@ export default function JumpsByPieGraphs() {
   const [jumpsByLocation, setJumpsByLocation] = useState([]);
   const [jumpsByTeam, setJumpsByTeam] = useState([]);
   const [jumpsByType, setJumpsByType] = useState([]);
+  const [jumpsByAltitude, setJumpsByAltitude] = useState([]);
 
   useEffect(() => {
     getJumpsByLocation();
     getJumpsByTeam();
     getJumpsByType();
+    getJumpsByAltitude();
   }, []);
 
   async function getJumpsByLocation() {
@@ -38,6 +42,11 @@ export default function JumpsByPieGraphs() {
   async function getJumpsByType() {
     const { data } = await supabase.rpc("get_jumps_by_type", {});
     setJumpsByType(data);
+  }
+
+  async function getJumpsByAltitude() {
+    const { data } = await supabase.rpc("get_jumps_by_altitude", {});
+    setJumpsByAltitude(data);
   }
 
   return (
@@ -112,7 +121,7 @@ export default function JumpsByPieGraphs() {
         <PieChart
           loading={jumpsByType.length === 0}
           height={400}
-          colors={strawberrySkyPalette}
+          colors={mangoFusionPalette}
           series={[
             {
               arcLabelMinAngle: 35,
@@ -130,7 +139,39 @@ export default function JumpsByPieGraphs() {
               sx: {
                 overflowY: "scroll",
                 flexWrap: "nowrap",
-                height: "100%",
+                height: "300px",
+                width: "25%",
+              },
+            },
+          }}
+        />
+      </Grid>
+      <Grid sx={{ padding: 2 }} size={{ sm: 12, md: 6 }}>
+        <h2 style={{ display: "flex", justifyContent: "center" }}>
+          Jumps by Altitude
+        </h2>
+        <PieChart
+          loading={jumpsByAltitude.length === 0}
+          height={400}
+          colors={cheerfulFiestaPalette}
+          series={[
+            {
+              arcLabelMinAngle: 35,
+              arcLabelRadius: "60%",
+              data: jumpsByAltitude,
+            },
+          ]}
+          sx={{
+            [`& .${pieArcLabelClasses.root}`]: {
+              fontWeight: "bold",
+            },
+          }}
+          slotProps={{
+            legend: {
+              sx: {
+                overflowY: "scroll",
+                flexWrap: "nowrap",
+                height: "300px",
                 width: "25%",
               },
             },

@@ -141,13 +141,14 @@ export default function JumpByMonthBarGraph() {
   };
 
   return (
-    <Grid sx={{ padding: 2 }}>
+    <Grid sx={{ padding: 2 }} size={12}>
       <Typography variant="h5" align="center">
         Jumps by Month
       </Typography>
 
       <BarChart
         dataset={monthData.data}
+        loading={monthData.data.length === 0}
         height={400}
         xAxis={[{ dataKey: "month", scaleType: "band" }]}
         yAxis={[{ label: "Jumps" }]}
@@ -168,7 +169,7 @@ export default function JumpByMonthBarGraph() {
             p: 3,
             m: "auto",
             mt: 10,
-            maxWidth: 400,
+            maxWidth: "80%",
             borderRadius: 2,
           }}
         >
@@ -178,6 +179,7 @@ export default function JumpByMonthBarGraph() {
 
           <BarChart
             dataset={dayData.data}
+            loading={dayData.data.length === 0}
             height={400}
             xAxis={[{ dataKey: "day", scaleType: "band" }]}
             yAxis={[{ label: "Jumps" }]}

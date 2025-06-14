@@ -33,10 +33,10 @@ function App() {
         rowSpacing={1}
         columnSpacing={{ xs: 1, sm: 1, md: 2 }}
       >
-        <Grid size={{ sm: 12, md: 6 }}>
+        <Grid size={12}>
           <SummaryTable />
         </Grid>
-        <Grid sx={{ padding: 2 }} size={{ sm: 12, md: 6 }}>
+        <Grid sx={{ padding: 2 }} size={12}>
           <JumpTable />
         </Grid>
         <JumpsByPieGraphs />
