@@ -1,10 +1,11 @@
-import * as React from "react";
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
-import { Grid } from "@mui/material";
+import { Grid, Modal, Box, Typography } from "@mui/material";
 import { BarChart } from "@mui/x-charts/BarChart";
-import { mangoFusionPalette } from "@mui/x-charts/colorPalettes";
-import theme from "./theme";
+import {
+  mangoFusionPalette,
+  cheerfulFiestaPalette,
+} from "@mui/x-charts/colorPalettes";
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -27,25 +28,56 @@ const MONTH_NAMES = [
   "December",
 ];
 
-const transformToPivot = (data) => {
-  const years = [...new Set(data.map((d) => d.year))];
+function pivotByMonth(flat) {
+  const years = [...new Set(flat.map((r) => r.year))].sort();
   const months = Array.from({ length: 12 }, (_, i) => i + 1);
 
-  return months.map((month) => {
-    const row = { month: MONTH_NAMES[month] };
+  const data = months.map((month) => {
+    const row = {
+      month: MONTH_NAMES[month],
+      monthNumber: month,
+    };
     years.forEach((year) => {
-      const match = data.find((d) => d.year === year && d.month === month);
+      const match = flat.find((f) => f.year === year && f.month === month);
       row[`y${year}`] = match ? match.jumps : 0;
     });
     return row;
   });
-};
+
+  return { data, years };
+}
+
+function pivotByDay(flat, monthIndex) {
+  const getDays = (year, month) => new Date(year, month, 0).getDate();
+  const numberOfDays = getDays(2020, monthIndex);
+  const days = Array.from(
+    { length: getDays(2020, monthIndex) },
+    (_, index) => index + 1
+  );
+  const years = [...new Set(flat.map((r) => r.year))].sort();
+
+  const data = days.map((day) => {
+    const row = {
+      day: day,
+    };
+    years.forEach((year) => {
+      const match = flat.find((f) => f.year === year && f.day === day);
+      row[`y${year}`] = match ? match.jumps : 0;
+    });
+    row.total = years.reduce((sum, year) => sum + (row[`y${year}`] || 0), 0);
+    return row;
+  });
+
+  return { data, years };
+}
 
 export default function JumpByMonthBarGraph() {
-  const [pivotData, setPivotData] = useState([]);
+  const [monthData, setMonthData] = useState({ data: [], years: [] });
+  const [dayData, setDayData] = useState({ data: [], years: [] });
+  const [modalData, setModalData] = useState(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchMonthData = async () => {
       const { data, error } = await supabase.rpc(
         "get_jumps_by_month_by_year",
         {}
@@ -56,56 +88,109 @@ export default function JumpByMonthBarGraph() {
         return;
       }
 
-      // Group the raw date values into year/month counts
       const counts = {};
-
       for (const row of data) {
-        const year = row.year;
-        const month = row.month;
-
-        const key = `${year}-${month}`;
+        const key = `${row.year}-${row.month}`;
         if (row.jumps > 0) {
           counts[key] = row.jumps;
         }
       }
 
-      // Flatten into array format
       const flat = Object.entries(counts).map(([key, jumps]) => {
         const [year, month] = key.split("-").map(Number);
         return { year, month, jumps };
       });
 
-      setPivotData(transformToPivot(flat));
+      setMonthData(pivotByMonth(flat));
     };
-
-    fetchData();
+    fetchMonthData();
   }, []);
 
-  const years =
-    pivotData.length > 0
-      ? Object.keys(pivotData[0])
-          .filter((k) => k.startsWith("y"))
-          .map((k) => +k.slice(1))
-      : [];
+  const handleBarClick = async (event, clickedData) => {
+    const clickedRow = monthData.data[clickedData.dataIndex];
+
+    if (!clickedRow) return;
+
+    const { data, error } = await supabase.rpc("get_jumps_by_day", {
+      jump_month: clickedData.dataIndex + 1, // dataIndex is 0-based, month is 1-based
+    });
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    const counts = {};
+    for (const row of data) {
+      const key = `${row.year}-${row.day}`;
+      if (row.jumps > 0) {
+        counts[key] = row.jumps;
+      }
+    }
+
+    const flat = Object.entries(counts).map(([key, jumps]) => {
+      const [year, day] = key.split("-").map(Number);
+      return { year, day, jumps };
+    });
+
+    setDayData(pivotByDay(flat, clickedData.dataIndex + 1));
+
+    setModalData({
+      month: clickedRow.month,
+    });
+  };
 
   return (
-    <Grid sx={{ padding: 2 }} size={12}>
-      <h2 style={{ display: "flex", justifyContent: "center" }}>
+    <Grid sx={{ padding: 2 }}>
+      <Typography variant="h5" align="center">
         Jumps by Month
-      </h2>
+      </Typography>
+
       <BarChart
-        dataset={pivotData}
-        loading={pivotData.length === 0}
+        dataset={monthData.data}
         height={400}
-        xAxis={[{ dataKey: "month" }]}
+        xAxis={[{ dataKey: "month", scaleType: "band" }]}
         yAxis={[{ label: "Jumps" }]}
         colors={mangoFusionPalette}
-        series={years.map((y, idx) => ({
-          dataKey: `y${y}`,
+        series={monthData.years.map((year) => ({
+          dataKey: `y${year}`,
+          label: year.toString(),
           stack: "total",
-          label: y.toString(),
         }))}
+        onItemClick={handleBarClick}
+        tooltip={{ trigger: "item" }}
       />
+
+      <Modal open={!!modalData} onClose={() => setModalData(null)}>
+        <Box
+          sx={{
+            bgcolor: "white",
+            p: 3,
+            m: "auto",
+            mt: 10,
+            maxWidth: 400,
+            borderRadius: 2,
+          }}
+        >
+          <Typography variant="h5" align="center">
+            Jumps by Day in {modalData?.month}
+          </Typography>
+
+          <BarChart
+            dataset={dayData.data}
+            height={400}
+            xAxis={[{ dataKey: "day", scaleType: "band" }]}
+            yAxis={[{ label: "Jumps" }]}
+            colors={cheerfulFiestaPalette}
+            series={dayData.years.map((year) => ({
+              dataKey: `y${year}`,
+              label: year.toString(),
+              stack: "total",
+            }))}
+            tooltip={{ trigger: "item" }}
+          />
+        </Box>
+      </Modal>
     </Grid>
   );
 }
