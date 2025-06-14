@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
-import { Grid, Modal, Box, Typography } from "@mui/material";
+import { Button, Grid, Modal, Box, Typography } from "@mui/material";
 import { BarChart } from "@mui/x-charts/BarChart";
 import {
   mangoFusionPalette,
@@ -41,6 +41,7 @@ function pivotByMonth(flat) {
       const match = flat.find((f) => f.year === year && f.month === month);
       row[`y${year}`] = match ? match.jumps : 0;
     });
+    row.total = years.reduce((sum, year) => sum + (row[`y${year}`] || 0), 0);
     return row;
   });
 
@@ -49,7 +50,6 @@ function pivotByMonth(flat) {
 
 function pivotByDay(flat, monthIndex) {
   const getDays = (year, month) => new Date(year, month, 0).getDate();
-  const numberOfDays = getDays(2020, monthIndex);
   const days = Array.from(
     { length: getDays(2020, monthIndex) },
     (_, index) => index + 1
@@ -75,6 +75,7 @@ export default function JumpByMonthBarGraph() {
   const [monthData, setMonthData] = useState({ data: [], years: [] });
   const [dayData, setDayData] = useState({ data: [], years: [] });
   const [modalData, setModalData] = useState(null);
+  const [viewMode, setViewMode] = useState("byYear"); // or "total"
 
   useEffect(() => {
     const fetchMonthData = async () => {
@@ -145,6 +146,14 @@ export default function JumpByMonthBarGraph() {
       <Typography variant="h5" align="center">
         Jumps by Month
       </Typography>
+      <Button
+        variant="outlined"
+        onClick={() =>
+          setViewMode((prev) => (prev === "byYear" ? "total" : "byYear"))
+        }
+      >
+        {viewMode === "byYear" ? "Show Totals" : "Show By Year"}
+      </Button>
 
       <BarChart
         dataset={monthData.data}
@@ -153,11 +162,22 @@ export default function JumpByMonthBarGraph() {
         xAxis={[{ dataKey: "month", scaleType: "band" }]}
         yAxis={[{ label: "Jumps" }]}
         colors={mangoFusionPalette}
-        series={monthData.years.map((year) => ({
-          dataKey: `y${year}`,
-          label: year.toString(),
-          stack: "total",
-        }))}
+        hideLegend={viewMode !== "byYear"}
+        slotProps={{
+          legend: {
+            direction: "horizontal",
+            position: { vertical: "bottom", horizontal: "center" },
+          },
+        }}
+        series={
+          viewMode === "byYear"
+            ? monthData.years.map((year) => ({
+                dataKey: `y${year}`,
+                label: year.toString(),
+                stack: "total",
+              }))
+            : [{ dataKey: "total", label: "Total", color: "#1976d2" }]
+        }
         onItemClick={handleBarClick}
         tooltip={{ trigger: "item" }}
       />
