@@ -9,7 +9,6 @@ import Logbook from "./Home/Logbook.jsx";
 import JumpByMonthBarGraph from "./Graphs/JumpByMonthBarGraph.jsx";
 import JumpsByPieGraphs from "./Graphs/JumpsByPieGraphs.jsx";
 import SummaryTable from "./SummaryTable.jsx";
-import LogJumpModal from "./LogJumpModal.jsx";
 
 const pages = ["Home", "Stats Graphs", "Gear"];
 
@@ -24,8 +23,8 @@ function App() {
         columnSpacing={{ xs: 1, sm: 1, md: 2 }}
       >
         <Routes>
-          <Route path="/" element={<SummaryTable />} />
-          <Route path="/logbook" element={<Logbook />} />
+          <Route path="/summary" element={<SummaryTable />} />
+          <Route path="/" element={<Logbook />} />
           <Route
             path="/stats"
             element={
@@ -58,13 +57,13 @@ function Adventurebar() {
             </IconButton>
             <Box sx={{ flexGrow: 1 }}>
               <Button color="inherit" component={Link} to="/">
-                Home
+                Logbook
+              </Button>
+              <Button color="inherit" component={Link} to="/summary">
+                Jumper Summary
               </Button>
               <Button color="inherit" component={Link} to="/stats">
                 Stats
-              </Button>
-              <Button color="inherit" component={Link} to="/logbook">
-                Logbook
               </Button>
             </Box>
           </Toolbar>

@@ -51,14 +51,17 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 export default function Logbook() {
   const [jumps, setJumps] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    setIsLoading(true);
     getJumps();
   }, []);
 
   async function getJumps() {
     const { data } = await supabase.rpc("get_jumps", {}).limit(20);
     setJumps(data);
+    setIsLoading(false);
   }
 
   return (
@@ -70,11 +73,7 @@ export default function Logbook() {
         <LogJumpModal />
       </Toolbar>
       <Grid size={12}>
-        <TableContainer
-          position="fixed"
-          component={Paper}
-          sx={{ maxHeight: 530 }}
-        >
+        <TableContainer position="fixed" component={Paper} sx={{ height: 530 }}>
           <Table stickyHeader size="small" aria-label="simple table">
             <TableHead sx={{ backgroundColor: theme.palette.primary.light }}>
               <TableRow>
@@ -87,14 +86,48 @@ export default function Logbook() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {jumps.map((row) => (
-                <Row key={row.jump} row={row} />
-              ))}
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={6} align="center">
+                    Loading...
+                  </TableCell>
+                </TableRow>
+              ) : jumps.length > 0 ? (
+                jumps.map((row) => <Row key={row.jump} row={row} />)
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={6} align="center">
+                    No jumps found.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </TableContainer>
       </Grid>
     </>
+  );
+}
+
+function JumpTable(props) {
+  return (
+    <Table stickyHeader size="small" aria-label="simple table">
+      <TableHead sx={{ backgroundColor: theme.palette.primary.light }}>
+        <TableRow>
+          <StyledTableCell />
+          <StyledTableCell>Jump</StyledTableCell>
+          <StyledTableCell align="right">Date</StyledTableCell>
+          <StyledTableCell align="right">Dropzone</StyledTableCell>
+          <StyledTableCell align="right">Jump&nbsp;Type</StyledTableCell>
+          <StyledTableCell align="right">Team</StyledTableCell>
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {jumps.map((row) => (
+          <Row key={row.jump} row={row} />
+        ))}
+      </TableBody>
+    </Table>
   );
 }
 
