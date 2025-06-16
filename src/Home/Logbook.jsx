@@ -1,22 +1,30 @@
 import * as React from "react";
 import { useEffect, useState } from "react";
-import theme from "./theme";
+import theme from "../theme.js";
 import { styled } from "@mui/material/styles";
 import { tableCellClasses } from "@mui/material/TableCell";
 
-import { Box, IconButton, Typography } from "@mui/material";
-import Collapse from "@mui/material/Collapse";
+import {
+  Box,
+  Collapse,
+  Grid,
+  IconButton,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Toolbar,
+  Typography,
+} from "@mui/material";
 
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableHead from "@mui/material/TableHead";
-import TableRow from "@mui/material/TableRow";
-import Paper from "@mui/material/Paper";
-import supabase from "./CreateSupa.jsx";
+import supabase from "../CreateSupa.jsx";
+
+import LogJumpModal from "../LogJumpModal.jsx";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -41,7 +49,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-export default function JumpTable() {
+export default function Logbook() {
   const [jumps, setJumps] = useState([]);
 
   useEffect(() => {
@@ -54,25 +62,39 @@ export default function JumpTable() {
   }
 
   return (
-    <TableContainer position="fixed" component={Paper} sx={{ maxHeight: 530 }}>
-      <Table stickyHeader size="small" aria-label="simple table">
-        <TableHead sx={{ backgroundColor: theme.palette.primary.light }}>
-          <TableRow>
-            <StyledTableCell />
-            <StyledTableCell>Jump</StyledTableCell>
-            <StyledTableCell align="right">Date</StyledTableCell>
-            <StyledTableCell align="right">Dropzone</StyledTableCell>
-            <StyledTableCell align="right">Jump&nbsp;Type</StyledTableCell>
-            <StyledTableCell align="right">Team</StyledTableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {jumps.map((row) => (
-            <Row key={row.jump} row={row} />
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+    <>
+      <Toolbar
+        sx={{ flexGrow: 1 }}
+        style={{ display: "flex", justifyContent: "left" }}
+      >
+        <LogJumpModal />
+      </Toolbar>
+      <Grid size={12}>
+        <TableContainer
+          position="fixed"
+          component={Paper}
+          sx={{ maxHeight: 530 }}
+        >
+          <Table stickyHeader size="small" aria-label="simple table">
+            <TableHead sx={{ backgroundColor: theme.palette.primary.light }}>
+              <TableRow>
+                <StyledTableCell />
+                <StyledTableCell>Jump</StyledTableCell>
+                <StyledTableCell align="right">Date</StyledTableCell>
+                <StyledTableCell align="right">Dropzone</StyledTableCell>
+                <StyledTableCell align="right">Jump&nbsp;Type</StyledTableCell>
+                <StyledTableCell align="right">Team</StyledTableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {jumps.map((row) => (
+                <Row key={row.jump} row={row} />
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Grid>
+    </>
   );
 }
 

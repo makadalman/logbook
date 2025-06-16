@@ -83,11 +83,16 @@ export default function LogJumpModal() {
     <div
       style={{
         textAlign: "center",
-        display: "block",
-        margin: "auto",
+        display: "flex",
+        width: "100%",
+        justifyContent: "right",
       }}
     >
-      <button type="button" onClick={handleOpen}>
+      <button
+        type="button"
+        style={{ outline: "1px solid black" }}
+        onClick={handleOpen}
+      >
         Log Jump
       </button>
       <Modal onClose={handleClose} open={open}>

@@ -5,7 +5,7 @@ import {
   mangoFusionPalette,
   cheerfulFiestaPalette,
 } from "@mui/x-charts/colorPalettes";
-import supabase from "./CreateSupa.jsx"; // Adjust the import based on your project structure
+import supabase from "../CreateSupa.jsx"; // Adjust the import based on your project structure
 
 const MONTH_NAMES = [
   "",

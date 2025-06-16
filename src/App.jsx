@@ -1,25 +1,21 @@
-import {
-  AppBar,
-  Box,
-  Grid,
-  IconButton,
-  Toolbar,
-  Typography,
-} from "@mui/material";
+import { AppBar, Box, Button, Grid, IconButton, Toolbar } from "@mui/material";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 
 import cat from "./assets/cat-small.png";
 import theme from "./theme";
 import "./App.css";
 
-import JumpTable from "./JumpTable.jsx";
-import JumpByMonthBarGraph from "./JumpByMonthBarGraph.jsx";
-import JumpsByPieGraphs from "./JumpsByPieGraphs.jsx";
+import Logbook from "./Home/Logbook.jsx";
+import JumpByMonthBarGraph from "./Graphs/JumpByMonthBarGraph.jsx";
+import JumpsByPieGraphs from "./Graphs/JumpsByPieGraphs.jsx";
 import SummaryTable from "./SummaryTable.jsx";
 import LogJumpModal from "./LogJumpModal.jsx";
 
+const pages = ["Home", "Stats Graphs", "Gear"];
+
 function App() {
   return (
-    <>
+    <Router>
       <Adventurebar />
       <Grid
         container
@@ -27,16 +23,21 @@ function App() {
         rowSpacing={1}
         columnSpacing={{ xs: 1, sm: 1, md: 2 }}
       >
-        <Grid size={12}>
-          <SummaryTable />
-        </Grid>
-        <Grid sx={{ padding: 2 }} size={12}>
-          <JumpTable />
-        </Grid>
-        <JumpsByPieGraphs />
-        <JumpByMonthBarGraph />
+        <Routes>
+          <Route path="/" element={<SummaryTable />} />
+          <Route path="/logbook" element={<Logbook />} />
+          <Route
+            path="/stats"
+            element={
+              <>
+                <JumpsByPieGraphs />
+                <JumpByMonthBarGraph />
+              </>
+            }
+          />
+        </Routes>
       </Grid>
-    </>
+    </Router>
   );
 }
 
@@ -55,14 +56,20 @@ function Adventurebar() {
             >
               <img src={cat} className="small-cat" alt="cat" />
             </IconButton>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              Log book adventures
-            </Typography>
-            <LogJumpModal />
+            <Box sx={{ flexGrow: 1 }}>
+              <Button color="inherit" component={Link} to="/">
+                Home
+              </Button>
+              <Button color="inherit" component={Link} to="/stats">
+                Stats
+              </Button>
+              <Button color="inherit" component={Link} to="/logbook">
+                Logbook
+              </Button>
+            </Box>
           </Toolbar>
         </AppBar>
       </Box>
-      <Toolbar />
     </>
   );
 }
