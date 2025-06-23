@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import supabase from "../CreateSupa.jsx"; // Adjust the import based on your project structure
+import supabase from "../CreateSupa.jsx";
 import { PieChart, pieArcLabelClasses } from "@mui/x-charts/PieChart";
 import { Grid, Toolbar } from "@mui/material";
 import {

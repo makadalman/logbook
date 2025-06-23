@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import supabase from "./CreateSupa.jsx";
+import supabase from "../CreateSupa.jsx";
 import { Box, Container, Grid } from "@mui/material";
+import { useAuth } from "../AuthContext.jsx";
 
 export default function SummaryTable() {
   const [summary, setSummary] = useState([]);
   const [userInfo, setUserInfo] = useState([]);
   const [containers, setContainers] = useState([]);
+  const { user } = useAuth();
 
   useEffect(() => {
     getSummary();
@@ -18,7 +20,10 @@ export default function SummaryTable() {
     setSummary(data[0]);
   }
   async function getUserInfo() {
-    const { data } = await supabase.from("user_info").select().eq("id", "1");
+    const { data } = await supabase
+      .from("user_info")
+      .select()
+      .eq("id", user.id);
     setUserInfo(data[0]);
   }
   async function getContainers() {

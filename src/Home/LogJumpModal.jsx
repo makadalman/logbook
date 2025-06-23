@@ -14,7 +14,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
-import supabase from "./CreateSupa.jsx";
+import supabase from "../CreateSupa.jsx";
 
 export default function LogJumpModal() {
   const [open, setOpen] = React.useState(false);

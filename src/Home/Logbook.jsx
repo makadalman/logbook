@@ -24,7 +24,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import supabase from "../CreateSupa.jsx";
 
-import LogJumpModal from "../LogJumpModal.jsx";
+import LogJumpModal from "./LogJumpModal.jsx";
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -59,9 +59,15 @@ export default function Logbook() {
   }, []);
 
   async function getJumps() {
-    const { data } = await supabase.rpc("get_jumps", {}).limit(20);
-    setJumps(data);
-    setIsLoading(false);
+    try {
+      const { data, error } = await supabase.rpc("get_jumps", {}).limit(20);
+      if (error) throw error;
+      setJumps(data);
+    } catch (err) {
+      console.error("Failed to fetch jumps:", err.message);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -109,28 +115,6 @@ export default function Logbook() {
   );
 }
 
-function JumpTable(props) {
-  return (
-    <Table stickyHeader size="small" aria-label="simple table">
-      <TableHead sx={{ backgroundColor: theme.palette.primary.light }}>
-        <TableRow>
-          <StyledTableCell />
-          <StyledTableCell>Jump</StyledTableCell>
-          <StyledTableCell align="right">Date</StyledTableCell>
-          <StyledTableCell align="right">Dropzone</StyledTableCell>
-          <StyledTableCell align="right">Jump&nbsp;Type</StyledTableCell>
-          <StyledTableCell align="right">Team</StyledTableCell>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        {jumps.map((row) => (
-          <Row key={row.jump} row={row} />
-        ))}
-      </TableBody>
-    </Table>
-  );
-}
-
 function Row(props) {
   const { row } = props;
   const [open, setOpen] = React.useState(false);
@@ -152,10 +136,8 @@ function Row(props) {
         </TableCell>
         <TableCell align="right">{formatDate(row.jump_date)}</TableCell>
         <TableCell align="right">{row.dropzone}</TableCell>
-        <TableCell align="right">
-          {row.jump_type ? row.jump_type : ""}
-        </TableCell>
-        <TableCell align="right">{row.team ? row.team : ""}</TableCell>
+        <TableCell align="right">{row.jump_type || ""}</TableCell>
+        <TableCell align="right">{row.team || ""}</TableCell>
       </StyledTableRow>
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
@@ -188,21 +170,11 @@ function Row(props) {
                 </TableHead>
                 <TableBody>
                   <TableRow key={row.jump}>
-                    <TableCell align="right">
-                      {row.altitude ? row.altitude : ""}
-                    </TableCell>
-                    <TableCell align="right">
-                      {row.delay ? row.delay : ""}
-                    </TableCell>
-                    <TableCell align="right">
-                      {row.formation ? row.formation : ""}
-                    </TableCell>
-                    <TableCell align="right">
-                      {row.aircraft ? row.aircraft : ""}
-                    </TableCell>
-                    <TableCell align="right">
-                      {row.container ? row.container : ""}
-                    </TableCell>
+                    <TableCell align="right">{row.altitude || ""}</TableCell>
+                    <TableCell align="right">{row.delay || ""}</TableCell>
+                    <TableCell align="right">{row.formation || ""}</TableCell>
+                    <TableCell align="right">{row.aircraft || ""}</TableCell>
+                    <TableCell align="right">{row.container || ""}</TableCell>
                     <TableCell align="right">
                       {FormatCanopyColor(row)}
                     </TableCell>
@@ -220,15 +192,19 @@ function Row(props) {
 function FormatCanopyColor(data) {
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
-      <span>{data.canopy ? data.canopy : ""}</span>
-      <span>{data.canopy_color ? data.canopy_color : ""}</span>
-      <span>{data.canopy_size ? `(${data.canopy_size})` : ""}</span>
+      <span>{data.canopy || ""}</span>
+      <span>{data.canopy_color || ""}</span>
+      <span>{data.canopy_size || ""}</span>
     </div>
   );
 }
 
 function formatDate(dateString) {
-  const date = new Date(dateString);
-  date.setDate(date.getDate() + 1);
-  return date.toLocaleDateString();
+  const parsed = new Date(dateString);
+  if (isNaN(parsed)) return "Invalid Date";
+  return parsed.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
 }
