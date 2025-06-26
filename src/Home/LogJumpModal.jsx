@@ -99,7 +99,7 @@ export default function LogJumpModal({
   async function getJumpNumber() {
     const { data } = await supabase
       .from("logbook")
-      .select("jump,")
+      .select("jump")
       .eq("user_id", user.id)
       .order("jump", { ascending: false })
       .limit(1);
