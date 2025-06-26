@@ -3,9 +3,15 @@ import { useEffect, useState } from "react";
 import theme from "../theme.js";
 import { styled } from "@mui/material/styles";
 import { tableCellClasses } from "@mui/material/TableCell";
+import EditIcon from "@mui/icons-material/Edit";
+import utc from "dayjs/plugin/utc";
+import dayjs from "dayjs";
+
+dayjs.extend(utc);
 
 import {
   Box,
+  Button,
   Collapse,
   Grid,
   IconButton,
@@ -52,31 +58,42 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 export default function Logbook() {
   const [jumps, setJumps] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [createOpen, setCreateOpen] = useState(false);
 
   useEffect(() => {
-    setIsLoading(true);
     getJumps();
   }, []);
 
-  async function getJumps() {
-    try {
-      const { data, error } = await supabase.rpc("get_jumps", {}).limit(20);
-      if (error) throw error;
-      setJumps(data);
-    } catch (err) {
-      console.error("Failed to fetch jumps:", err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  const getJumps = async () => {
+    setIsLoading(true);
+    const { data } = await supabase.rpc("get_jump_table", {}).limit(20);
+    setJumps(data);
+    setIsLoading(false);
+  };
 
   return (
     <>
       <Toolbar
         sx={{ flexGrow: 1 }}
-        style={{ display: "flex", justifyContent: "left" }}
+        style={{ display: "flex", justifyContent: "right" }}
       >
-        <LogJumpModal />
+        <Button
+          variant="outlined"
+          style={{ outline: "1px solid black" }}
+          onClick={() => setCreateOpen(true)}
+        >
+          Log Jump
+        </Button>
+        <LogJumpModal
+          open={createOpen}
+          onClose={() => setCreateOpen(false)}
+          initialData={null}
+          onSave={async (payload) => {
+            await supabase.from("logbook").insert([payload]);
+            getJumps();
+            setCreateOpen(false);
+          }}
+        />
       </Toolbar>
       <Grid size={12}>
         <TableContainer position="fixed" component={Paper} sx={{ height: 530 }}>
@@ -89,6 +106,7 @@ export default function Logbook() {
                 <StyledTableCell align="right">Dropzone</StyledTableCell>
                 <StyledTableCell align="right">Jump&nbsp;Type</StyledTableCell>
                 <StyledTableCell align="right">Team</StyledTableCell>
+                <StyledTableCell />
               </TableRow>
             </TableHead>
             <TableBody>
@@ -99,7 +117,9 @@ export default function Logbook() {
                   </TableCell>
                 </TableRow>
               ) : jumps.length > 0 ? (
-                jumps.map((row) => <Row key={row.jump} row={row} />)
+                jumps.map((row) => (
+                  <Row key={row.jump} row={row} refreshLogbook={getJumps} />
+                ))
               ) : (
                 <TableRow>
                   <TableCell colSpan={6} align="center">
@@ -116,8 +136,22 @@ export default function Logbook() {
 }
 
 function Row(props) {
-  const { row } = props;
+  const { row, refreshLogbook } = props;
   const [open, setOpen] = React.useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+
+  const handleUpdate = async (updated) => {
+    const { error } = await supabase
+      .from("logbook")
+      .update(updated)
+      .eq("id", row.id);
+    if (!error) {
+      refreshLogbook();
+      setEditOpen(false);
+    } else {
+      console.error("Update failed:", error.message);
+    }
+  };
 
   return (
     <React.Fragment>
@@ -134,10 +168,17 @@ function Row(props) {
         <TableCell component="th" scope="row">
           {row.jump}
         </TableCell>
-        <TableCell align="right">{formatDate(row.jump_date)}</TableCell>
+        <TableCell align="right">
+          {dayjs(row.jump_date, "YYYY-MM-DD").format("MM/DD/YYYY")}
+        </TableCell>
         <TableCell align="right">{row.dropzone}</TableCell>
         <TableCell align="right">{row.jump_type || ""}</TableCell>
         <TableCell align="right">{row.team || ""}</TableCell>
+        <TableCell align="right">
+          <IconButton size="small" onClick={() => setEditOpen(true)}>
+            <EditIcon fontSize="small" />
+          </IconButton>
+        </TableCell>
       </StyledTableRow>
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
@@ -183,6 +224,12 @@ function Row(props) {
               </Table>
             </Box>
           </Collapse>
+          <LogJumpModal
+            open={editOpen}
+            onClose={() => setEditOpen(false)}
+            initialData={row}
+            onSave={handleUpdate}
+          />
         </TableCell>
       </TableRow>
     </React.Fragment>
@@ -197,14 +244,4 @@ function FormatCanopyColor(data) {
       <span>{data.canopy_size || ""}</span>
     </div>
   );
-}
-
-function formatDate(dateString) {
-  const parsed = new Date(dateString);
-  if (isNaN(parsed)) return "Invalid Date";
-  return parsed.toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
 }

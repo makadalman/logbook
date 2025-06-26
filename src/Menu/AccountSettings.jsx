@@ -8,20 +8,16 @@ import {
   Alert,
 } from "@mui/material";
 import supabase from "../CreateSupa";
+import { useAuth } from "../AuthContext";
 
 export default function AccountSettings() {
-  const [user, setUser] = useState(null);
   const [displayName, setDisplayName] = useState("");
   const [status, setStatus] = useState({ type: "", message: "" });
+  const { user } = useAuth();
 
   useEffect(() => {
     const loadUser = async () => {
-      const {
-        data: { user },
-        error,
-      } = await supabase.auth.getUser();
       if (user) {
-        setUser(user);
         // Optionally fetch from `user_info` table
         const { data: profile } = await supabase
           .from("user_info")
@@ -29,8 +25,6 @@ export default function AccountSettings() {
           .eq("id", user.id)
           .single();
         if (profile) setDisplayName(profile.display_name || "");
-      } else if (error) {
-        console.error("Error fetching user:", error.message);
       }
     };
     loadUser();

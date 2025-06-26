@@ -27,7 +27,7 @@ export default function SummaryTable() {
     setUserInfo(data[0]);
   }
   async function getContainers() {
-    const { data } = await supabase.rpc("get_containers", {});
+    const { data } = await supabase.rpc("get_rig_setups", {});
     setContainers(data);
   }
   return (
