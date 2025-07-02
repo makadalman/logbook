@@ -1,11 +1,11 @@
 import { createTheme } from "@mui/material/styles";
-const theme = createTheme({
+const logbookTheme = createTheme({
   palette: {
     primary: {
-      main: "#6896fc"
+      main: "#047fe1"
     },
     secondary: {
-      main: "#42a5f5"
+      main: "#4fb0fc"
     }
   },
   spacing: 8,
@@ -20,4 +20,4 @@ const theme = createTheme({
   },
 });
 
-export default theme;
+export default logbookTheme;

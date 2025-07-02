@@ -20,12 +20,12 @@ import supabase from "./CreateSupa.jsx";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import cat from "./assets/cat-small.png";
-import theme from "./theme.js";
+import logbookTheme from "./logbookTheme.js";
 import "./App.css";
 
 import Logbook from "./Home/Logbook.jsx";
 import JumpByMonthBarGraph from "./Graphs/JumpByMonthBarGraph.jsx";
-import JumpsByPieGraphs from "./Graphs/JumpsByPieGraphs.jsx";
+import JumpsByDipictions from "./Graphs/JumpsByDipictions.jsx";
 import SummaryTable from "./Menu/SummaryTable.jsx";
 import AccountSettings from "./Menu/AccountSettings.jsx";
 
@@ -129,7 +129,7 @@ function Dashboard() {
             element={
               <>
                 {/* <ProtectedRoute> */}
-                <JumpsByPieGraphs />
+                <JumpsByDipictions />
                 {/* </ProtectedRoute> */}
                 {/* <ProtectedRoute> */}
                 <JumpByMonthBarGraph />
@@ -145,7 +145,7 @@ function Dashboard() {
 
 function Adventurebar() {
   const navigate = useNavigate();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const isMobile = useMediaQuery(logbookTheme.breakpoints.down("md"));
   const { user } = useAuth();
 
   const [anchorElUser, setAnchorElUser] = React.useState(null);
@@ -172,7 +172,7 @@ function Adventurebar() {
   return (
     <>
       <Box sx={{ flexGrow: 1 }}>
-        <AppBar theme={theme} position="fixed">
+        <AppBar theme={logbookTheme} position="fixed">
           <Toolbar>
             <IconButton
               size="large"
@@ -215,6 +215,9 @@ function Adventurebar() {
                 </Button>
                 <Button color="inherit" component={Link} to="/stats">
                   Stats
+                </Button>
+                <Button color="inherit" component={Link} to="/gear">
+                  Gear
                 </Button>
               </Box>
             )}

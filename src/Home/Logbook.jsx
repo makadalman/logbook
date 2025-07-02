@@ -1,11 +1,11 @@
 import * as React from "react";
 import { useEffect, useState } from "react";
-import theme from "../theme.js";
 import { styled } from "@mui/material/styles";
 import { tableCellClasses } from "@mui/material/TableCell";
 import EditIcon from "@mui/icons-material/Edit";
 import utc from "dayjs/plugin/utc";
 import dayjs from "dayjs";
+import logbookTheme from "../logbookTheme.js";
 
 dayjs.extend(utc);
 
@@ -98,7 +98,9 @@ export default function Logbook() {
       <Grid size={12}>
         <TableContainer position="fixed" component={Paper} sx={{ height: 530 }}>
           <Table stickyHeader size="small" aria-label="simple table">
-            <TableHead sx={{ backgroundColor: theme.palette.primary.light }}>
+            <TableHead
+              sx={{ backgroundColor: logbookTheme.palette.primary.light }}
+            >
               <TableRow>
                 <StyledTableCell />
                 <StyledTableCell>Jump</StyledTableCell>
